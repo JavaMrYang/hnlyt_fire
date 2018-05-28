@@ -1,27 +1,28 @@
 package com.hdkj.lyt.hnlyt_fire.service.impl;
 
-import com.github.pagehelper.PageHelper;
+
 import com.hdkj.lyt.hnlyt_fire.model.FireUploadTable;
 import com.hdkj.lyt.hnlyt_fire.repository.FireUpLoadTableRepository;
 import com.hdkj.lyt.hnlyt_fire.service.FireUploadTableService;
 import com.hdkj.lyt.hnlyt_fire.util.Contants;
 import com.hdkj.lyt.hnlyt_fire.util.StringUtil;
+import com.hdkj.lyt.hnlyt_fire.util.ly.ObjectUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.Session;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +33,7 @@ public class FireUploadTableServiceImpl implements FireUploadTableService {
     private EntityManager em;
     @Autowired
     private FireUpLoadTableRepository tbFireUpLoadTableRepository;
+
     @Override
     public FireUploadTable save(FireUploadTable tbFireUploadTable) {
         return tbFireUpLoadTableRepository.save(tbFireUploadTable);
@@ -69,57 +71,81 @@ public class FireUploadTableServiceImpl implements FireUploadTableService {
     }
 
     @Override
-    public Page<Map> findPageByCondition(String fireLevel, String fireKind, String fireArea,String fireAreaTown,String startTime,String endTime,Integer pageNo) {
-        /*Pageable page=new PageRequest(pageNo, Contants.PAGE_SIZE);
-        Page<Map> pageList=tbFireUpLoadTableRepository.findAll(new Specification<FireUploadTable>() {
+    @Transactional(rollbackFor = Exception.class)
+    public Page<Map> findPageByCondition(String fireLevel, String fireKind, String fireArea,String fireAreaTown,String startTime,String endTime,String village,Integer pageNo) {
+        Pageable pageable=new PageRequest(pageNo,Contants.PAGE_SIZE);
+        StringBuilder hql=new StringBuilder();
+        hql.append("select a.id,a.fireArea,a.fireStatus,a.creactTime,a.fireLeve,a.fireKind,a.fireMj,b.phone,latlngs,b.name from tb_FireUploadTable a join tb_User b on a.userName=b.name where 1=1 ");
+        StringBuilder condition=new StringBuilder();
+        if(!StringUtils.isBlank(endTime)){
+            condition.append("and createDate<='").append(endTime).append("' ");
+        }
+        if(!StringUtils.isBlank(startTime)){
+            condition.append("and createDate>='").append(startTime).append("' ");
+        }
+        if (!StringUtils.isBlank(fireLevel)){
+            condition.append("and fireLeve=").append(fireLevel).append(" ");
+        }
+        if (!StringUtils.isBlank(fireKind)){
+            condition.append("and fireKind=").append(fireKind).append(" ");
+        }
+        if (!StringUtils.isBlank(fireArea)){
+            condition.append("and fireArea='").append(fireArea).append("' ");
+        }
+        if (!StringUtils.isBlank(fireAreaTown)){
+            condition.append("and fireAreaTown='").append(fireAreaTown).append("' ");
+        }
+        if (!StringUtils.isBlank(village)) {
+            condition.append("and village='").append(village).append("' ");
+        }
+        hql.append(condition);
+        Session session = (Session) em.getDelegate();
+        org.hibernate.Query q = session.createSQLQuery(hql.toString());
+        List<Map> totalCount = q.list();
+        q.setFirstResult(pageable.getPageSize() * (pageable.getPageNumber() - 1));
+        q.setMaxResults(pageable.getPageSize());
+        String[] args={"id","fireArea","fireStatus","creactTime","fireLeve","fireKind","fireMj","phone","latlngs","name"};
+        List<Map> pageList = ObjectUtil.listToListMap(q.getResultList(),args);
+
+        return new PageImpl<Map>(pageList,pageable,totalCount.size());
+    }
+
+    @Override
+    public Page<Map> findAssessPageByCondition(int pageNo, FireUploadTable fireUploadTable, String beginTime, String endTime, String fireId) {
+        Pageable pageable=new PageRequest(pageNo,Contants.PAGE_SIZE, Sort.Direction.DESC,"createDate");
+        Page pageList=tbFireUpLoadTableRepository.findAll(new Specification<FireUploadTable>() {
             @Override
-            public Predicate toPredicate(Root<FireUploadTable> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+            public Predicate toPredicate(Root root, CriteriaQuery query, CriteriaBuilder cb) {
                 List<Predicate> predicates=new ArrayList<>();
+                if(fireUploadTable.getFireArea()!=null&&!"".equals(fireUploadTable.getFireArea())){
+                    predicates.add(cb.like(root.get("fireArea"),fireUploadTable.getFireArea()));
+                }
+                if(fireUploadTable.getFireAreaTown()!=null&&!"".equals(fireUploadTable.getFireAreaTown())){
+                    predicates.add(cb.like(root.get("fireAreaTown"),fireUploadTable.getFireAreaTown()));
+                }
+                if(fireUploadTable.getVillage()!=null&&!"".equals(fireUploadTable.getVillage())){
+                    predicates.add(cb.like(root.get("village"),fireUploadTable.getVillage()));
+                }
+                if(!StringUtils.isBlank(beginTime)){
+                    predicates.add(cb.greaterThanOrEqualTo(root.get("creactTime"),beginTime));
+                }
                 if(!StringUtils.isBlank(endTime)){
-                    predicates.add(cb.lessThanOrEqualTo(root.get("createDate"),endTime));
+                    predicates.add(cb.lessThanOrEqualTo(root.get("creactTime"),endTime));
                 }
-                if(!StringUtils.isBlank(startTime)){
-                    predicates.add(cb.greaterThanOrEqualTo(root.get("createDate"),startTime));
+                if(!StringUtils.isBlank(fireUploadTable.getFireStatus())){
+                    predicates.add(cb.equal(root.get("fireStatus"),fireUploadTable.getFireStatus()));
                 }
-                if (!StringUtils.isBlank(fireLevel)){
-                    predicates.add(cb.equal(root.get("fireLeve"),fireLevel));
+                if(!StringUtils.isBlank(fireUploadTable.getIsAssess())){
+                    predicates.add(cb.equal(root.get("isAssess"),fireUploadTable.getIsAssess()));
                 }
-                if (!StringUtils.isBlank(fireKind)){
-                    predicates.add(cb.equal(root.get("fireKind"),fireKind));
-                }
-                if (!StringUtils.isBlank(fireArea)){
-                    predicates.add(cb.equal(root.get("fireArea"),fireArea));
-                }
-                if (!StringUtils.isBlank(fireAreaTown)){
-                    predicates.add(cb.equal(root.get("fireAreaTown"),fireAreaTown));
+                if(!StringUtils.isBlank(fireId)){
+                    predicates.add(cb.like(root.get("id"),fireId));
                 }
                 query.where(predicates.toArray(new Predicate[predicates.size()]));
                 return null;
             }
-        },page);*/
-        com.github.pagehelper.Page<Object> page=PageHelper.startPage(1, Contants.PAGE_SIZE);
-        Map paramMap=new HashMap();
-        if(!StringUtils.isBlank(endTime)){
-            paramMap.put("endTime",endTime);
-        }
-        if(!StringUtils.isBlank(startTime)){
-            paramMap.put("startTime",startTime);
-        }
-        if (!StringUtils.isBlank(fireLevel)){
-           paramMap.put("fireLevel",fireLevel);
-        }
-        if (!StringUtils.isBlank(fireKind)){
-           paramMap.put("fireKind",fireKind);
-        }
-        if (!StringUtils.isBlank(fireArea)){
-            paramMap.put("fireArea",fireArea);
-        }
-        if (!StringUtils.isBlank(fireAreaTown)){
-            paramMap.put("fireAreaTown",fireAreaTown);
-        }
-        tbFireUpLoadTableRepository.findAll(paramMap);
-
-        return null;
+        },pageable);
+        return pageList;
     }
 
     private List<Map> mergeData(List<Map> list){

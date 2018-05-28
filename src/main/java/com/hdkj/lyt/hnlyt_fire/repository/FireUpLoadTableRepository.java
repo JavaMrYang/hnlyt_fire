@@ -1,11 +1,15 @@
 package com.hdkj.lyt.hnlyt_fire.repository;
 
+import com.hdkj.lyt.hnlyt_fire.common.BaseRepository;
 import com.hdkj.lyt.hnlyt_fire.model.FireUploadTable;
 import org.apache.ibatis.annotations.Select;
+import org.hibernate.annotations.Cache;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public interface FireUpLoadTableRepository extends JpaRepository<FireUploadTable,Integer>{
+public interface FireUpLoadTableRepository extends JpaRepository<FireUploadTable,Integer>,JpaSpecificationExecutor{
     @Query(value = "update tb_FireUploadTable set fireStatus=?1 where id=?2",nativeQuery = true)
     @Modifying
     @Transactional
@@ -36,12 +40,5 @@ public interface FireUpLoadTableRepository extends JpaRepository<FireUploadTable
     @Transactional
     void deleteById(Integer id);
 
-   @Select("select id,fireArea,fireStatus,creactTime,fireLeve,fireKind,fireMj,b.phone,latlngs,b.name JOIN tb_User b ON userName=b.name where 1=1 <if test=\"endTime!=null and endTime=''\"> and createDate <![CDATA[   <=  ]] #{endTime}</if>" +
-           "<if test=\"startTime!=null and startTime=''\"> and createDate <![CDATA[   >=  ]] #{startTime}</if>" +
-           "<if test=\"fireLevel!=null and fireLevel=''\"> and fireLeve=#{fireLevel}</if>" +
-           "<if test=\"fireKind!=null and fireKind=''\"> and fireKind=#{fireKind}</if>" +
-           "<if test=\"fireArea!=null and fireArea=''\"> and fireArea=#{fireArea}</if>" +
-           "<if test=\"fireAreaTown!=null and fireAreaTown=''\"> and fireAreaTown=#{fireAreaTown}</if>" +
-           "<if test=\"village!=null and village=''\"> and village=#{village}</if>")
-    Page<Map> findAll(Map paramMap);
+
 }

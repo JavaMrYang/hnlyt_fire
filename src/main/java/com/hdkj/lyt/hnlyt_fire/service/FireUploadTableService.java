@@ -15,5 +15,7 @@ public interface FireUploadTableService {
     List<Map> getFireUploagLine1(Integer type);
     FireUploadTable findByHotId(String hotId);
     void deleteById(Integer id);
-    Page<Map> findPageByCondition(String fireLevel, String fireKind, String fireArea,String fireAreaTown,String startTime,String endTime, Integer pageNo);
+    Page<Map> findPageByCondition(String fireLevel, String fireKind, String fireArea,String fireAreaTown,String startTime,String endTime,String village,Integer pageNo);
+
+    Page<Map> findAssessPageByCondition(int pageNo,FireUploadTable fireUploadTable,String beginTime,String endTime,String fireId);
 }

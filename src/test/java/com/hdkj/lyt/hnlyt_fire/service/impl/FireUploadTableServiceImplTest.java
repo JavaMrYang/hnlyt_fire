@@ -17,6 +17,7 @@ import java.util.Map;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class FireUploadTableServiceImplTest {
+
     @Autowired
     private FireUpLoadTableRepository fireUpLoadTableRepository;
     @Autowired
@@ -43,12 +44,13 @@ public class FireUploadTableServiceImplTest {
     public void findPageByCondition(){
         String fireLevel="";
         String fireKind="";
-        String fireArea="";
+        String fireArea="长沙市";
         String fireAreaTown="";
+        String villag="";
         String startTime="";
         String endTime="";
-        Page<Map> pageList=fireUploadTableService.findPageByCondition(fireLevel, fireKind, fireArea, fireAreaTown, startTime,  endTime, 1);
-        System.out.println(JSON.toJSON(pageList.getContent()).toString());
+        Page<Map> pageList=fireUploadTableService.findPageByCondition(fireLevel, fireKind, fireArea, fireAreaTown, startTime, endTime,villag, 2);
+        System.out.println(JSON.toJSON(pageList).toString());
         System.out.println(pageList.getTotalPages());
     }
 }

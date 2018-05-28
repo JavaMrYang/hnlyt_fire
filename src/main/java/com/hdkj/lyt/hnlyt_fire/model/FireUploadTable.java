@@ -51,17 +51,6 @@ public class FireUploadTable {
 	private String inputTime;
 	private String isAssess; //是否评估
 
-	@ManyToOne
-    @JoinColumn(name = "name")
-    private User user;
-
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
 
 	public String getIsAssess() {
 		return isAssess;

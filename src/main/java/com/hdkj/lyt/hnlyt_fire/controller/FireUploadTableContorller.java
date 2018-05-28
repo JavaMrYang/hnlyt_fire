@@ -18,6 +18,7 @@ import com.hdkj.lyt.hnlyt_fire.util.ResultJson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.TransactionDefinition;
@@ -155,5 +156,26 @@ public class FireUploadTableContorller {
            ResultJson.sendCodeAndMsg(Contants.ERROR_STATUS,"删除失败!",resultMap);
         }
         return resultMap;
+    }
+
+    /**
+     * 按条件查询评估和未评估列表
+     * @param fireUploadTable
+     * @param pageNo
+     * @param beginTime
+     * @param endTime
+     * @param fireId
+     * @param type
+     * @return String
+     * @date 2018-3-31
+     */
+    @RequestMapping(value="/getFireUploadTableListByCondition",method=RequestMethod.POST)
+    @ResponseBody
+    public Map getFireUploadTableListByCondition(FireUploadTable fireUploadTable,String pageNo,
+String beginTime,String endTime,String fireId,String type){
+     Map resultMap=new HashMap();
+     Page<Map> pageList=uploadTableService.findAssessPageByCondition(Integer.parseInt(pageNo),fireUploadTable,beginTime,endTime,fireId);
+     ResultJson.sendCodeAndTotalAndData(Contants.OK_STATUS,pageList.getContent(),pageList.getTotalElements(),resultMap);
+     return resultMap;
     }
 }

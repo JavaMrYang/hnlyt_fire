@@ -61,11 +61,11 @@ logging:
   level:
    com.hdkj.lyt.hnlyt_fire.repository: debug
 mybatis:
-    configuration:
-      map-underscore-to-camel-case: true
+    #configuration:
+      #map-underscore-to-camel-case: true
     mapper-locations: classpath:mapping/*.xml
     type-aliases-package: com.hdkj.lyt.hnlyt_fire.repository
-    config-location: classpath:/mybatis/mybatis-config.xml
+   # config-location: classpath:/mybatis/mybatis-config.xml
 
 
 

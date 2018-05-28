@@ -2,6 +2,7 @@ package com.hdkj.lyt.hnlyt_fire.controller;
 
 import com.hdkj.lyt.hnlyt_fire.util.Contants;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,7 +22,7 @@ public class FileUploadController {
 
     @RequestMapping(value = "/upload",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String,Object> upload(@RequestParam("file") MultipartFile file){
+    public Map<String,Object> upload(@RequestParam("file") MultipartFile file, BindingResult result){
         Map<String,Object> map=new HashMap<>();
         if (!file.isEmpty()) {
             try {

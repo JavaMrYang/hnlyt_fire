@@ -39,17 +39,6 @@ public class User {
 	private String isFly;//是否齐飞
 	private String isOnline;  //是否在线
 
-	@OneToMany(mappedBy = "user")
-	private Set<FireUploadTable> fireUploadTables;
-
-	public Set<FireUploadTable> getFireUploadTables() {
-		return fireUploadTables;
-	}
-
-	public void setFireUploadTables(Set<FireUploadTable> fireUploadTables) {
-		this.fireUploadTables = fireUploadTables;
-	}
-
 	public String getIsOnline() {
 		return isOnline;
 	}

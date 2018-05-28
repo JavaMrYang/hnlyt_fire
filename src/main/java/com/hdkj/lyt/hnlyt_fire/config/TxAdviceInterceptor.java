@@ -15,11 +15,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 配置事务拦截器
+ */
 @Aspect
 @Configuration
 public class TxAdviceInterceptor {
     private static final int TX_METHOD_TIMEOUT = 5;
-    private static final String AOP_POINTCUT_EXPRESSION = "execution (* com.hdkj.lyt.hnlyt_fire.service.*.*(..))";
+    private static final String AOP_POINTCUT_EXPRESSION = "execution (* com.hdkj.lyt.hnlyt_fire.service.*.*(..))";//配置对应的包名
     @Autowired
     private PlatformTransactionManager transactionManager;
     @Bean

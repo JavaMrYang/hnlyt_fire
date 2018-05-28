@@ -4,9 +4,9 @@
     <settings>
         <setting name="logImpl" value="LOG4J"/>
     </settings>
-    <plugins>
+
         <!--mybatis分页插件-->
-        <plugin interceptor="com.github.pagehelper.PageHelper">
+        <!--<plugin interceptor="com.github.pagehelper.PageHelper">
             <property name="dialect" value="mysql"/>
             <property name="offsetAsPageNum" value="false"/>
             <property name="rowBoundsWithCount" value="false"/>
@@ -14,7 +14,7 @@
             <property name="reasonable" value="false"/>
             <property name="supportMethodsArguments" value="false"/>
             <property name="returnPageInfo" value="none"/>
-        </plugin>
-    </plugins>
+        </plugin>-->
+
 
 </configuration>

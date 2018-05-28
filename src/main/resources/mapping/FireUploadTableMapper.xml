@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hdkj.lyt.hnlyt_fire.repository.FireUpLoadTableRepository">
-    <select id=""></select>
+    <select id="findPageByCondition" parameterType="java.util.Map" resultType="java.util.Map">
+        select id,fireArea,fireStatus,creactTime,fireLeve,fireKind,fireMj,b.phone,latlngs,b.name
+						from (select row_number()over(order by tempcolumn)temprownumber,*
+						from (select top (#{pageNo}*20),* from tb_FireUploadTable where 1=1  ORDER BY creactTime desc)t)tt JOIN tb_User b ON userName=b.name where temprownumber>(#{pageNo}-1)*20
+    </select>
 </mapper>
 
 
